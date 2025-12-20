@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Farm Run - Главная</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>FARM RUN</h1>
+    <div id="wallet" style="font-weight: bold; color: gold; font-size: 24px;">Золото: 0</div>
+    <div style="display: flex; flex-direction: column;">
+        <button class="menu-btn" onclick="location.href='game.html'">ИГРАТЬ</button>
+        <button class="menu-btn" onclick="location.href='skins.html'">СКИНЫ</button>
+        <button class="menu-btn" onclick="location.href='settings.html'">НАСТРОЙКИ</button>
+    </div>
+    <script>
+        document.getElementById('wallet').innerText = "Золото: " + (localStorage.getItem('dinoCoins') || 0);
+    </script>
+</body>
+</html>

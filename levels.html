@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Уровни</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>ВЫБЕРИ УРОВЕНЬ</h1>
+    <div id="levels-list" class="levels-scroll"></div>
+    <button class="menu-btn" onclick="location.href='main.html'">НАЗАД</button>
+
+    <script>
+        // coinChance - это вероятность появления монеты (от 0.01 до 0.1)
+        const LEVELS = [
+            { id: 1, name: "Луг", goal: 15, gap: 450, coinChance: 0.01 },
+            { id: 2, name: "Поле", goal: 25, gap: 400, coinChance: 0.015 },
+            { id: 3, name: "Тропа", goal: 40, gap: 350, coinChance: 0.02 },
+            { id: 4, name: "Огород", goal: 55, gap: 300, coinChance: 0.03 },
+            { id: 5, name: "Холмы", goal: 70, gap: 260, coinChance: 0.04 },
+            { id: 6, name: "Лес", goal: 90, gap: 230, coinChance: 0.05 },
+            { id: 7, name: "Скалы", goal: 110, gap: 200, coinChance: 0.06 },
+            { id: 8, name: "Болото", goal: 130, gap: 185, coinChance: 0.07 },
+            { id: 9, name: "Тьма", goal: 160, gap: 170, coinChance: 0.08 },
+            { id: 10, name: "АД", goal: 200, gap: 155, coinChance: 0.1 }
+        ];
+
+        const list = document.getElementById('levels-list');
+        const completed = JSON.parse(localStorage.getItem('completedLevels') || "[]");
+
+        LEVELS.forEach(lvl => {
+            const isDone = completed.includes(lvl.id);
+            // Примерный расчет: чем выше шанс и длиннее уровень, тем больше монет
+            const potential = Math.floor(lvl.goal * lvl.coinChance * 100); 
+            
+            const div = document.createElement('div');
+            div.className = "level-row" + (isDone ? " done" : "");
+            div.style.padding = "15px";
+            div.style.borderBottom = "1px solid #ccc";
+            div.style.cursor = "pointer";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            
+            div.innerHTML = `
+                <div style="text-align: left;">
+                    <b>${lvl.id}. ${lvl.name}</b><br>
+                    <small style="color: #666;">Цель: ${lvl.goal} м. | Примерно монет: ~${potential} 💰</small>
+                </div>
+                <span>${isDone ? '✅' : '❌'}</span>
+            `;
+
+            div.onclick = () => {
+                localStorage.setItem('currentLevelData', JSON.stringify(lvl));
+                location.href = 'game.html';
+            };
+            list.appendChild(div);
+        });
+    </script>
+</body>
+</html>

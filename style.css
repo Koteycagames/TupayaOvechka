@@ -1,0 +1,6 @@
+body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; background: #fff; text-align: center; }
+.menu-btn { width: 250px; padding: 15px; margin: 10px; border: 2px solid #000; background: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+.menu-btn:hover { background: #000; color: #fff; }
+canvas { border-bottom: 3px solid #000; background: #fff; }
+.levels-scroll { width: 350px; height: 300px; overflow-y: auto; border: 2px solid #000; margin-bottom: 20px; }
+.done { background: #eaffea; }

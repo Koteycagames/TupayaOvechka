@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Настройки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>НАСТРОЙКИ</h1>
+    <button class="menu-btn" onclick="toggleSound()" id="sbtn">Звук: ВКЛ</button>
+    <button class="menu-btn" onclick="localStorage.clear(); location.reload();">СБРОСИТЬ ВСЁ</button>
+    <button class="menu-btn" onclick="location.href='main.html'">НАЗАД</button>
+
+    <script>
+        function toggleSound() {
+            let s = localStorage.getItem('dinoSound') !== 'false';
+            localStorage.setItem('dinoSound', !s);
+            document.getElementById('sbtn').innerText = "Звук: " + (!s ? "ВКЛ" : "ВЫКЛ");
+        }
+        document.getElementById('sbtn').innerText = "Звук: " + (localStorage.getItem('dinoSound') !== 'false' ? "ВКЛ" : "ВЫКЛ");
+    </script>
+</body>
+</html>
