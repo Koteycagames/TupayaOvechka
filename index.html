@@ -2,19 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Farm Run - Главная</title>
+    <title>Farm Run - Меню</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .menu-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #333; margin-bottom: 30px; }
+        .menu-btn { display: block; width: 220px; margin: 10px auto; padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 8px; transition: 0.2s; text-decoration: none; }
+        .menu-btn:hover { background: #45a049; transform: scale(1.05); }
+        .stats { margin-top: 20px; font-size: 18px; color: #666; }
+    </style>
 </head>
 <body>
-    <h1>FARM RUN</h1>
-    <div id="wallet" style="font-weight: bold; color: gold; font-size: 24px;">Золото: 0</div>
-    <div style="display: flex; flex-direction: column;">
-        <button class="menu-btn" onclick="location.href='game.html'">ИГРАТЬ</button>
-        <button class="menu-btn" onclick="location.href='skins.html'">СКИНЫ</button>
-        <button class="menu-btn" onclick="location.href='settings.html'">НАСТРОЙКИ</button>
+    <div class="menu-container">
+        <h1>FARM RUN</h1>
+        <a href="game.html" class="menu-btn">ИГРАТЬ</a>
+        <a href="shop.html" class="menu-btn" style="background: #FF9800;">МАГАЗИН</a>
+        
+        <div class="stats">
+            <div>Монеты: <span id="coin-count">0</span> 💰</div>
+            <div>Рекорд: <span id="best-dist">0</span> м</div>
+        </div>
     </div>
+
     <script>
-        document.getElementById('wallet').innerText = "Золото: " + (localStorage.getItem('dinoCoins') || 0);
+        document.getElementById('coin-count').innerText = localStorage.getItem('dinoCoins') || 0;
+        document.getElementById('best-dist').innerText = localStorage.getItem('dinoRecord') || 0;
     </script>
 </body>
 </html>
