@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <title>Farm Run - Игра</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; font-family: sans-serif; }
-        canvas { display: block; background: #fff; border-bottom: 4px solid #333; margin: 0 auto; }
+        /* ВОЗВРАЩАЕМ СТАРЫЙ ДИЗАЙН */
+        body { margin: 0; background: #222; color: white; font-family: sans-serif; overflow: hidden; }
+        canvas { display: block; background: #fff; border-bottom: 5px solid #000; margin: 0 auto; }
         
         #hud { position: absolute; top: 10px; left: 20px; z-index: 10; pointer-events: none; }
-        .hud-text { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        #score-info { font-weight: bold; font-size: 18px; color: #fff; text-shadow: 1px 1px 2px #000; }
+        #total-coins-display { color: #FFD700; font-weight: bold; font-size: 22px; text-shadow: 1px 1px 2px #000; }
 
         .ui-layer { 
             position: absolute; inset: 0; 
-            background: rgba(255,255,255,0.9); 
+            background: rgba(0,0,0,0.85); 
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
             z-index: 100; 
@@ -20,51 +22,52 @@
         .hidden { display: none !important; }
 
         .menu-btn { 
-            margin: 10px; padding: 15px 40px; 
+            margin: 10px; padding: 15px 30px; 
             font-size: 18px; font-weight: bold; 
             cursor: pointer; background: #4CAF50; 
-            color: white; border: none; border-radius: 8px; 
-            min-width: 200px; transition: 0.2s;
+            color: white; border: 2px solid #fff; 
+            border-radius: 10px; min-width: 220px; 
         }
-        .menu-btn:hover { background: #45a049; transform: scale(1.05); }
-        .menu-btn.blue { background: #2196F3; }
-        .menu-btn.orange { background: #FF9800; }
+        .menu-btn:hover { background: #45a049; }
         
-        #ad-video-overlay { background: #000; z-index: 1000; }
-        #video-wrapper { width: 80%; max-width: 800px; aspect-ratio: 16/9; background: #111; }
+        #pause-btn {
+            position: absolute; top: 10px; right: 20px; z-index: 20;
+            background: #444; color: white; border: 1px solid #fff;
+            padding: 8px 15px; cursor: pointer; border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 
     <div id="hud">
-        <div class="hud-text" id="score-info">Дистанция: 0 м</div>
-        <div class="hud-text" id="total-coins-display" style="color: #B8860B;">Монеты: 0</div>
+        <div id="score-info">Дистанция: 0 м</div>
+        <div id="total-coins-display">Монеты: 0</div>
     </div>
 
-    <button onclick="togglePause()" style="position:absolute; top:10px; right:20px; z-index:20; padding: 10px; cursor:pointer;">ПАУЗА (Esc)</button>
+    <button id="pause-btn" onclick="togglePause()">ПАУЗА (Esc)</button>
 
     <canvas id="gameCanvas"></canvas>
 
     <div id="pause-ui" class="ui-layer hidden">
-        <h1>ПАУЗА</h1>
+        <h1 style="color: #4CAF50;">ПАУЗА</h1>
         <button class="menu-btn" onclick="togglePause()">ПРОДОЛЖИТЬ</button>
-        <button class="menu-btn blue" onclick="openSettings()">НАСТРОЙКИ</button>
-        <button class="menu-btn orange" onclick="location.href='index.html'">В МЕНЮ</button>
+        <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
+        <button class="menu-btn" style="background:#f44336;" onclick="location.href='index.html'">В МЕНЮ</button>
     </div>
 
     <div id="settings-ui" class="ui-layer hidden">
         <h1>НАСТРОЙКИ</h1>
-        <label style="font-size:20px; margin-bottom:20px;">
-            <input type="checkbox" id="sound-check" style="transform:scale(1.5);"> Звуки включены
+        <label style="font-size:22px; margin-bottom:30px;">
+            <input type="checkbox" id="sound-check" style="transform:scale(1.8);"> Звук
         </label>
-        <button class="menu-btn" onclick="closeSettings()">СОХРАНИТЬ</button>
+        <button class="menu-btn" onclick="closeSettings()">СОХРАНИТЬ И НАЗАД</button>
     </div>
 
     <div id="game-ui" class="ui-layer hidden">
-        <h1>ИГРА ОКОНЧЕНА</h1>
-        <div id="res-stats" style="font-size: 20px; margin-bottom: 20px; text-align:center;"></div>
-        <button class="menu-btn" onclick="resetGame()">ИГРАТЬ СНОВА</button>
-        <button class="menu-btn orange" onclick="location.href='index.html'">В МЕНЮ</button>
+        <h1 style="color: #f44336;">GAME OVER</h1>
+        <div id="res-stats" style="font-size: 24px; margin-bottom: 25px;"></div>
+        <button class="menu-btn" onclick="resetGame()">ПОПРОБОВАТЬ СНОВА</button>
+        <button class="menu-btn" style="background:#555;" onclick="location.href='index.html'">В МЕНЮ</button>
     </div>
 
     <script>
@@ -72,18 +75,29 @@
         const ctx = canvas.getContext("2d");
         canvas.width = 800; canvas.height = 250;
 
-        // Загрузка настроек и ресурсов
         let soundEnabled = localStorage.getItem('dinoSound') !== 'false';
         const activeSkin = localStorage.getItem('activeSkin') || 'baran';
 
-        // ПРОВЕРКА ПУТЕЙ: Убедись, что файлы лежат в этих папках!
+        // ПУТИ С ФИКСОМ ДЛЯ GITHUB
         const sndJump = new Audio('sounds/jump.mp3');
         const sndHit = new Audio('sounds/hit.mp3');
-        const imgPlayer = new Image(); imgPlayer.src = `images/${activeSkin}.png`;
-        const imgCactus = new Image(); imgCactus.src = `images/cactus.png`;
+        const imgPlayer = new Image();
+        const imgCactus = new Image();
+
+        // Попытка загрузить картинки
+        imgPlayer.src = "images/" + activeSkin + ".png";
+        imgCactus.src = "images/cactus.png";
 
         let imagesLoaded = 0;
-        imgPlayer.onload = imgCactus.onload = () => { imagesLoaded++; };
+        let loadError = false;
+
+        imgPlayer.onload = () => imagesLoaded++;
+        imgCactus.onload = () => imagesLoaded++;
+        
+        imgPlayer.onerror = imgCactus.onerror = (e) => {
+            console.error("Ошибка загрузки картинки:", e.target.src);
+            loadError = true;
+        };
 
         let isPlaying = true, isPaused = false;
         let distance = 0, sessionMoney = 0;
@@ -93,7 +107,7 @@
         let dino = { x: 50, y: 200, dy: 0, jump: -13, grav: 0.7, ground: true };
 
         function playSnd(audio) {
-            if(soundEnabled) { audio.currentTime = 0; audio.play().catch(e => console.log("Sound error")); }
+            if(soundEnabled) { audio.currentTime = 0; audio.play().catch(() => {}); }
         }
 
         function togglePause() {
@@ -121,38 +135,44 @@
             playSnd(sndHit);
             const total = coinsBeforeRun + sessionMoney;
             localStorage.setItem('dinoCoins', total);
-            document.getElementById('res-stats').innerHTML = `Дистанция: ${Math.floor(distance)}м<br>Собрано монет: ${sessionMoney}`;
+            document.getElementById('res-stats').innerHTML = `Расстояние: ${Math.floor(distance)}м<br>Монеты: +${sessionMoney}`;
             document.getElementById('game-ui').classList.remove('hidden');
         }
 
-        function resetGame() {
-            location.reload();
-        }
+        function resetGame() { location.reload(); }
 
         function loop() {
             if (!isPlaying || isPaused) return;
-            if (imagesLoaded < 2) { requestAnimationFrame(loop); return; } // Ждем загрузки картинок
 
+            // Если картинки не загрузились, рисуем просто квадраты, чтобы игра не вылетала
             ctx.clearRect(0,0, canvas.width, canvas.height);
             gameSpeed += 0.001;
             distance += gameSpeed / 100;
 
-            // Динозавр
             dino.dy += dino.grav;
             dino.y += dino.dy;
             if (dino.y > 200) { dino.y = 200; dino.dy = 0; dino.ground = true; }
-            ctx.drawImage(imgPlayer, dino.x, dino.y, 50, 50);
 
-            // Препятствия
+            // Рисуем игрока
+            if (imagesLoaded >= 2) {
+                ctx.drawImage(imgPlayer, dino.x, dino.y, 50, 50);
+            } else {
+                ctx.fillStyle = "blue"; ctx.fillRect(dino.x, dino.y, 50, 50);
+            }
+
             if (Math.random() < 0.01 && (cacti.length === 0 || cacti[cacti.length-1].x < 500)) {
                 cacti.push({x: 800, y: 200});
             }
 
             for (let i = cacti.length-1; i>=0; i--) {
                 cacti[i].x -= gameSpeed;
-                ctx.drawImage(imgCactus, cacti[i].x, cacti[i].y, 40, 50);
+                
+                if (imagesLoaded >= 2) {
+                    ctx.drawImage(imgCactus, cacti[i].x, cacti[i].y, 40, 50);
+                } else {
+                    ctx.fillStyle = "red"; ctx.fillRect(cacti[i].x, cacti[i].y, 40, 50);
+                }
 
-                // Коллизия
                 if (dino.x < cacti[i].x + 30 && dino.x + 30 > cacti[i].x && dino.y + 40 > cacti[i].y) {
                     showEndScreen();
                 }
@@ -166,7 +186,8 @@
         }
 
         window.addEventListener("keydown", e => {
-            if (e.code === "Space" && dino.ground && isPlaying && !isPaused) {
+            if ((e.code === "Space" || e.key === " ") && dino.ground && isPlaying && !isPaused) {
+                e.preventDefault();
                 dino.dy = dino.jump;
                 dino.ground = false;
                 playSnd(sndJump);
