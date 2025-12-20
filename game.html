@@ -57,14 +57,13 @@
     </div>
 
     <script>
-        // Ресурсы
+        // ИСПРАВЛЕННЫЕ ПУТИ (БЕЗ ПАПОК)
         const activeSkin = localStorage.getItem('activeSkin') || 'baran';
-        const imgPlayer = new Image(); imgPlayer.src = "images/" + activeSkin + ".png";
-        const imgCactus = new Image(); imgCactus.src = "images/cactus.png";
+        const imgPlayer = new Image(); imgPlayer.src = activeSkin + ".png"; // Просто имя файла
+        const imgCactus = new Image(); imgCactus.src = "cactus.png"; // Просто имя файла
         
-        let assetsLoaded = 0;
-        imgPlayer.onload = imgCactus.onload = () => assetsLoaded++;
-        imgPlayer.onerror = imgCactus.onerror = (e) => console.log("Ошибка 404: Проверь папку images на GitHub!");
+        const sndJump = new Audio("jump.mp3");
+        const sndHit = new Audio("hit.mp3");
 
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -87,13 +86,14 @@
             dino.dy += dino.grav; dino.y += dino.dy;
             if (dino.y > 200) { dino.y = 200; dino.dy = 0; dino.ground = true; }
 
-            // Отрисовка с защитой от 404
+            // Рисуем игрока
             if (imgPlayer.complete && imgPlayer.naturalWidth !== 0) {
                 ctx.drawImage(imgPlayer, dino.x, dino.y, 50, 50);
             } else {
                 ctx.fillStyle = "blue"; ctx.fillRect(dino.x, dino.y, 50, 50);
             }
 
+            // Логика кактусов
             if (Math.random() < 0.01 && (cacti.length === 0 || cacti[cacti.length-1].x < 500)) {
                 cacti.push({x: 800, y: 200});
             }
@@ -105,8 +105,11 @@
                 } else {
                     ctx.fillStyle = "red"; ctx.fillRect(cacti[i].x, cacti[i].y, 40, 50);
                 }
+                
+                // Коллизия
                 if (dino.x < cacti[i].x + 30 && dino.x + 30 > cacti[i].x && dino.y + 40 > cacti[i].y) {
                     isPlaying = false;
+                    if(localStorage.getItem('dinoSound') !== 'false') sndHit.play().catch(()=>{});
                     document.getElementById('res-stats').innerText = "Дистанция: " + Math.floor(distance) + " м";
                     document.getElementById('game-ui').classList.remove('hidden');
                 }
@@ -117,16 +120,32 @@
             requestAnimationFrame(loop);
         }
 
-        window.addEventListener("keydown", e => { if(e.code==="Space" && dino.ground) { dino.dy=dino.jump; dino.ground=false; } });
+        window.addEventListener("keydown", e => { 
+            if(e.code==="Space" && dino.ground) { 
+                dino.dy=dino.jump; dino.ground=false; 
+                if(localStorage.getItem('dinoSound') !== 'false') sndJump.play().catch(()=>{});
+            } 
+        });
         loop();
 
-        // Реклама (оставил логику)
+        // Реклама
+        function openAdMenu() { isPaused = true; document.getElementById('ad-menu').classList.remove('hidden'); }
+        function closeAdMenu() { document.getElementById('ad-menu').classList.add('hidden'); isPaused = false; requestAnimationFrame(loop); }
         function startAd(s, r, id) {
             document.getElementById('ad-video-overlay').classList.remove('hidden');
             document.getElementById('video-wrapper').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0"></iframe>`;
-            setTimeout(() => document.getElementById('close-ad-btn').classList.remove('hidden'), s*1000);
+            let timeLeft = s;
+            let itv = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time-num').innerText = timeLeft;
+                if(timeLeft <= 0) { clearInterval(itv); document.getElementById('close-ad-btn').classList.remove('hidden'); }
+            }, 1000);
         }
-        function finishAd() { location.reload(); }
+        function finishAd() {
+            let current = parseInt(localStorage.getItem('dinoCoins')) || 0;
+            localStorage.setItem('dinoCoins', current + 20); // Награда
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
