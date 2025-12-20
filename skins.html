@@ -2,30 +2,30 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Farm Run - Скины</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Скины</title>
     <style>
-        .skin-card { border: 1px solid #ccc; padding: 10px; margin: 10px; display: inline-block; text-align: center; }
-        .active { border: 2px solid gold; }
+        body { background: #222; color: white; text-align: center; font-family: sans-serif; }
+        .skin-card { display: inline-block; background: #333; padding: 20px; margin: 10px; border-radius: 10px; border: 2px solid #444; }
+        .menu-btn { padding: 10px 20px; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>МАГАЗИН СКИНОВ</h1>
-    <div id="coin-balance">Золото: 0</div>
-    
+    <h1>ВЫБЕРИ СКИН</h1>
     <div class="skin-card">
-        <img src="images/baran.png" width="50" height="50"><br>
-        <button onclick="selectSkin('baran')">ВЫБРАТЬ</button>
+        <img src="baran.png" width="60"><br>
+        <button onclick="setSkin('baran')">ВЫБРАТЬ</button>
     </div>
-
+    <div class="skin-card">
+        <img src="ovechka.png" width="60"><br>
+        <button onclick="setSkin('ovechka')">ВЫБРАТЬ</button>
+    </div>
     <br>
-    <button class="menu-btn" onclick="location.href='index.html'">НАЗАД В МЕНЮ</button>
+    <button class="menu-btn" onclick="location.href='index.html'">НАЗАД</button>
 
     <script>
-        document.getElementById('coin-balance').innerText = "Золото: " + (localStorage.getItem('dinoCoins') || 0);
-        function selectSkin(name) {
+        function setSkin(name) {
             localStorage.setItem('activeSkin', name);
-            alert("Скин " + name + " выбран!");
+            alert("Скин изменен!");
         }
     </script>
 </body>
