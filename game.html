@@ -5,6 +5,7 @@
     <title>Farm Run - Игра</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Стиль из вашего файла */
         #game-ui, #pause-ui, #ad-menu, #ad-video-overlay, #settings-ui { 
             position: absolute; inset: 0; 
             background: rgba(255,255,255,0.98); 
@@ -13,45 +14,32 @@
             z-index: 100; font-family: sans-serif;
         }
         .hidden { display: none !important; }
-        #hud { 
-            position: absolute; top: 10px; left: 20px; 
-            text-align: left; pointer-events: none; z-index: 10; 
-            font-family: sans-serif;
-        }
+        #hud { position: absolute; top: 10px; left: 20px; z-index: 10; font-family: sans-serif; }
         canvas { display: block; background: #fff; border-bottom: 2px solid #000; margin: 0 auto; }
         
-        #add-coins-btn {
-            pointer-events: auto; background: #4CAF50; color: white;
-            border: none; border-radius: 5px; padding: 2px 12px;
-            cursor: pointer; font-weight: bold; font-size: 20px; margin-left: 10px;
+        #ad-video-overlay { background: #000; z-index: 1000; color: white; }
+        #video-wrapper { width: 85%; max-width: 900px; aspect-ratio: 16/9; background: #111; }
+        #close-ad-btn { 
+            position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; 
+            background: white; color: black; border: none; border-radius: 50%; 
+            font-size: 28px; font-weight: bold; cursor: pointer; 
         }
-
         .ad-option {
             background: #f9f9f9; border: 2px solid #ddd; padding: 15px;
             margin: 8px; width: 340px; display: flex;
             justify-content: space-between; align-items: center;
             cursor: pointer; border-radius: 10px; font-size: 18px; color: #000;
         }
-
-        #ad-video-overlay { background: #000; z-index: 1000; color: white; }
-        #ad-timer-display { position: absolute; top: 20px; left: 20px; font-size: 20px; }
-        #close-ad-btn {
-            position: absolute; top: 20px; right: 20px;
-            width: 45px; height: 45px; background: white;
-            color: black; border: none; border-radius: 50%;
-            font-size: 28px; font-weight: bold; cursor: pointer;
-        }
-        #video-wrapper { width: 85%; max-width: 900px; aspect-ratio: 16/9; background: #111; }
         .menu-btn { margin: 10px; padding: 12px 30px; cursor: pointer; font-weight: bold; min-width: 200px; }
     </style>
 </head>
 <body>
 
     <div id="hud">
-        <div id="score-info" style="font-weight: bold; font-size: 16px;">Дистанция: 0 м</div>
+        <div id="score-info">Дистанция: 0 м</div>
         <div style="display: flex; align-items: center;">
             <div id="total-coins-display" style="color: #B8860B; font-weight: bold; font-size: 20px;">Монеты: 0</div>
-            <button id="add-coins-btn" onclick="openAdMenu()">+</button>
+            <button id="add-coins-btn" style="margin-left:10px; background:#4CAF50; color:white; border:none; padding:2px 10px; cursor:pointer;" onclick="openAdMenu()">+</button>
         </div>
     </div>
 
@@ -59,58 +47,104 @@
 
     <canvas id="gameCanvas"></canvas>
 
+    <div id="pause-ui" class="hidden">
+        <h1>ПАУЗА</h1>
+        <button class="menu-btn" onclick="togglePause()">ПРОДОЛЖИТЬ</button>
+        <button class="menu-btn" onclick="openSettings()">НАСТРОЙКИ</button>
+        <button class="menu-btn" onclick="location.href='index.html'">В МЕНЮ</button>
+    </div>
+
+    <div id="settings-ui" class="hidden">
+        <h1>НАСТРОЙКИ</h1>
+        <div style="margin-bottom: 20px; font-size: 20px;">
+            <label>Звуки:</label>
+            <input type="checkbox" id="sound-check" style="width:25px; height:25px;">
+        </div>
+        <button class="menu-btn" onclick="closeSettings()">СОХРАНИТЬ И НАЗАД</button>
+    </div>
+
     <div id="ad-menu" class="hidden">
         <h2>Бесплатные монеты</h2>
         <div class="ad-option" onclick="startAd(15, 15, '93R2rAgj4pA')">15 сек <b>+15 💰</b></div>
-        <div class="ad-option" onclick="startAd(30, 25, '6M1xLM9OO28')">30 сек <b>+25 💰</b></div>
-        <div class="ad-option" onclick="startAd(60, 40, 'QXbn6GPdOhw')">60 сек <b>+40 💰</b></div>
+        <div class="ad-option" onclick="startAd(30, 20, '6M1xLM9OO28')">30 сек <b>+20 💰</b></div> <div class="ad-option" onclick="startAd(60, 40, 'QXbn6GPdOhw')">60 сек <b>+40 💰</b></div>
         <div class="ad-option" onclick="startAd(120, 80, 'F9zGow9FExc')">120 сек <b>+80 💰</b></div>
-        <button class="menu-btn" onclick="closeAdMenu()">ЗАКРЫТЬ</button>
+        <div class="ad-option" onclick="startAd(180, 120, 'B6cVgEEvFkY')">180 сек <b>+120 💰</b></div> <button class="menu-btn" onclick="closeAdMenu()">ЗАКРЫТЬ</button>
     </div>
 
     <div id="ad-video-overlay" class="hidden">
-        <div id="ad-timer-display">Реклама: <span id="time-num">--</span> сек</div>
+        <div id="ad-timer-display" style="position:absolute; top:20px; left:20px;">Реклама: <span id="time-num">--</span> сек</div>
         <button id="close-ad-btn" class="hidden" onclick="finishAd()">✕</button>
         <div id="video-wrapper"></div>
     </div>
 
-    <div id="pause-ui" class="hidden">
-        <h1>ПАУЗА</h1>
-        <button class="menu-btn" onclick="togglePause()">ПРОДОЛЖИТЬ</button>
-        <button class="menu-btn" onclick="location.href='index.html'">В МЕНЮ</button>
-    </div>
-    
     <div id="game-ui" class="hidden">
         <h1>РЕЗУЛЬТАТЫ</h1>
-        <div id="res-stats" style="margin-bottom: 20px; font-size: 18px;"></div>
-        <button class="menu-btn" onclick="location.reload()">ЕЩЕ РАЗ</button>
+        <div id="res-stats" style="margin-bottom: 20px;"></div>
+        <button class="menu-btn" onclick="resetGame()">ЕЩЕ РАЗ</button>
         <button class="menu-btn" onclick="location.href='index.html'">В МЕНЮ</button>
     </div>
 
     <script>
+        // Использован ваш движок из файла game.html
+        let adReward = 0, adTimeLeft = 0, adInterval;
+        let soundEnabled = localStorage.getItem('dinoSound') !== 'false';
+
+        function openSettings() {
+            document.getElementById('pause-ui').classList.add('hidden');
+            document.getElementById('settings-ui').classList.remove('hidden');
+            document.getElementById('sound-check').checked = soundEnabled;
+        }
+        function closeSettings() {
+            soundEnabled = document.getElementById('sound-check').checked;
+            localStorage.setItem('dinoSound', soundEnabled);
+            document.getElementById('settings-ui').classList.add('hidden');
+            document.getElementById('pause-ui').classList.remove('hidden'); // Возврат в паузу
+        }
+
+        function openAdMenu() { isPaused = true; document.getElementById('ad-menu').classList.remove('hidden'); }
+        function closeAdMenu() { document.getElementById('ad-menu').classList.add('hidden'); isPaused = false; if(isPlaying) requestAnimationFrame(loop); }
+
+        function startAd(seconds, reward, videoId) {
+            adReward = reward; adTimeLeft = seconds;
+            document.getElementById('ad-menu').classList.add('hidden');
+            document.getElementById('ad-video-overlay').classList.remove('hidden');
+            document.getElementById('close-ad-btn').classList.add('hidden');
+            document.getElementById('time-num').innerText = adTimeLeft;
+            document.getElementById('video-wrapper').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0"></iframe>`;
+
+            if (adInterval) clearInterval(adInterval);
+            adInterval = setInterval(() => {
+                adTimeLeft--;
+                if (adTimeLeft >= 0) document.getElementById('time-num').innerText = adTimeLeft;
+                if (adTimeLeft <= 0) { clearInterval(adInterval); document.getElementById('close-ad-btn').classList.remove('hidden'); }
+            }, 1000);
+        }
+
+        function finishAd() { 
+            document.getElementById('video-wrapper').innerHTML = "";
+            let currentCoins = parseInt(localStorage.getItem('dinoCoins')) || 0;
+            localStorage.setItem('dinoCoins', currentCoins + adReward);
+            location.reload(); 
+        }
+
+        // --- ДВИЖОК ---
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         canvas.width = 800; canvas.height = 250;
 
         const activeSkin = localStorage.getItem('activeSkin') || 'baran';
-        const imgPlayer = new Image(); imgPlayer.src = activeSkin + ".png";
+        const imgPlayer = new Image(); imgPlayer.src = activeSkin + ".png"; 
         const imgCactus = new Image(); imgCactus.src = "cactus.png";
 
         let isPlaying = true, isPaused = false, distance = 0, sessionMoney = 0;
-        let gameSpeed = 5, cacti = [];
-        
-        // Плавность: снизил гравитацию (0.4) и силу прыжка (-9) для мягкости
-        let dino = { x: 50, y: 200, dy: 0, jump: -9, grav: 0.4, ground: true };
+        let gameSpeed = 5, cacti = [], dino = { x: 50, y: 200, dy: 0, jump: -9, grav: 0.4, ground: true };
 
         function loop() {
             if (!isPlaying || isPaused) return;
             ctx.clearRect(0,0, 800, 250);
-            
-            gameSpeed += 0.0007;
-            distance += gameSpeed / 100;
+            gameSpeed += 0.0007; distance += gameSpeed / 100;
 
-            dino.dy += dino.grav;
-            dino.y += dino.dy;
+            dino.dy += dino.grav; dino.y += dino.dy;
             if (dino.y > 200) { dino.y = 200; dino.dy = 0; dino.ground = true; }
 
             if (imgPlayer.complete) ctx.drawImage(imgPlayer, dino.x, dino.y, 50, 50);
@@ -122,61 +156,24 @@
             for (let i = cacti.length-1; i>=0; i--) {
                 cacti[i].x -= gameSpeed;
                 if (imgCactus.complete) ctx.drawImage(imgCactus, cacti[i].x, cacti[i].y, 40, 50);
-                
                 if (dino.x < cacti[i].x + 25 && dino.x + 30 > cacti[i].x && dino.y + 40 > cacti[i].y) {
                     isPlaying = false;
-                    saveCoins();
                     document.getElementById('res-stats').innerText = "Дистанция: " + Math.floor(distance) + " м";
                     document.getElementById('game-ui').classList.remove('hidden');
                 }
-                if (cacti[i].x < -50) cacti.splice(i, 1);
             }
-            
             document.getElementById('total-coins-display').innerText = "Монеты: " + (parseInt(localStorage.getItem('dinoCoins')||0) + sessionMoney);
             document.getElementById('score-info').innerText = "Дистанция: " + Math.floor(distance) + " м";
             requestAnimationFrame(loop);
         }
 
-        function saveCoins() {
-            let c = parseInt(localStorage.getItem('dinoCoins')) || 0;
-            localStorage.setItem('dinoCoins', c + sessionMoney);
-        }
-
-        function togglePause() {
+        function togglePause() { 
             isPaused = !isPaused;
             document.getElementById('pause-ui').classList.toggle('hidden', !isPaused);
-            if (!isPaused) requestAnimationFrame(loop);
+            if(!isPaused) requestAnimationFrame(loop);
         }
 
-        window.addEventListener("keydown", e => { 
-            if(e.code==="Space" && dino.ground && isPlaying) { 
-                dino.dy = dino.jump; 
-                dino.ground = false; 
-            } 
-        });
-
-        // РЕКЛАМА
-        let adReward = 0;
-        function openAdMenu() { isPaused = true; document.getElementById('ad-menu').classList.remove('hidden'); }
-        function closeAdMenu() { document.getElementById('ad-menu').classList.add('hidden'); isPaused = false; requestAnimationFrame(loop); }
-        function startAd(sec, rew, id) {
-            adReward = rew;
-            document.getElementById('ad-menu').classList.add('hidden');
-            document.getElementById('ad-video-overlay').classList.remove('hidden');
-            document.getElementById('close-ad-btn').classList.add('hidden');
-            document.getElementById('video-wrapper').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0"></iframe>`;
-            let t = sec;
-            let iv = setInterval(() => {
-                t--; document.getElementById('time-num').innerText = t;
-                if(t <= 0) { clearInterval(iv); document.getElementById('close-ad-btn').classList.remove('hidden'); }
-            }, 1000);
-        }
-        function finishAd() {
-            let c = parseInt(localStorage.getItem('dinoCoins')) || 0;
-            localStorage.setItem('dinoCoins', c + adReward);
-            location.reload();
-        }
-
+        window.addEventListener("keydown", e => { if(e.code==="Space" && dino.ground) { dino.dy=dino.jump; dino.ground=false; } });
         loop();
     </script>
 </body>
