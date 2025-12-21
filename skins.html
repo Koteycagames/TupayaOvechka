@@ -3,30 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Скины</title>
-    <style>
-        body { background: #222; color: white; text-align: center; font-family: sans-serif; }
-        .skin-card { display: inline-block; background: #333; padding: 20px; margin: 10px; border-radius: 10px; border: 2px solid #444; }
-        .menu-btn { padding: 10px 20px; cursor: pointer; margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>ВЫБЕРИ СКИН</h1>
-    <div class="skin-card">
-        <img src="baran.png" width="60"><br>
-        <button onclick="setSkin('baran')">ВЫБРАТЬ</button>
-    </div>
-    <div class="skin-card">
-        <img src="ovechka.png" width="60"><br>
-        <button onclick="setSkin('ovechka')">ВЫБРАТЬ</button>
-    </div>
-    <br>
-    <button class="menu-btn" onclick="location.href='index.html'">НАЗАД</button>
+    <h1>МАГАЗИН</h1>
+    <div id="wallet" style="font-weight: bold; color: gold; font-size: 20px; margin-bottom: 20px;">Золото: 0</div>
+    <div id="shop-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+    <button class="menu-btn" onclick="location.href='index.html'" style="margin-top: 20px;">НАЗАД</button>
 
     <script>
-        function setSkin(name) {
-            localStorage.setItem('activeSkin', name);
-            alert("Скин изменен!");
-        }
+        const SKINS = [
+            { id: 'baran', name: 'Овца', price: 0 },
+            { id: 'korova', name: 'Корова', price: 50 },
+            { id: 'pig', name: 'Свинья', price: 100 },
+            { id: 'chicken', name: 'Курица', price: 200 }
+        ];
+
+        let coins = parseInt(localStorage.getItem('dinoCoins')) || 0;
+        let owned = JSON.parse(localStorage.getItem('ownedSkins') || '["baran"]');
+        let active = localStorage.getItem('activeSkin') || 'baran';
+
+        const container = document.getElementById('shop-container');
+        document.getElementById('wallet').innerText = "Золото: " + coins;
+
+        SKINS.forEach(s => {
+            const isOwned = owned.includes(s.id);
+            const isActive = active === s.id;
+            const item = document.createElement('div');
+            // Возвращен стиль из вашего файла
+            item.style.border = "2px solid #000";
+            item.style.padding = "10px";
+            item.innerHTML = `
+                <b>${s.name}</b><br>
+                <img src="${s.id}.png" style="height: 40px; margin: 10px 0;"><br>
+                <button class="menu-btn" style="width: 120px; padding: 10px;" onclick="buy('${s.id}', ${s.price})">
+                    ${isActive ? 'АКТИВ' : (isOwned ? 'ВЫБРАТЬ' : s.price + ' 💰')}
+                </button>
+            `;
+            container.appendChild(item);
+        });
+
+        window.buy = (id, price) => {
+            if (owned.includes(id)) {
+                localStorage.setItem('activeSkin', id);
+            } else if (coins >= price) {
+                coins -= price;
+                owned.push(id);
+                localStorage.setItem('dinoCoins', coins);
+                localStorage.setItem('ownedSkins', JSON.stringify(owned));
+                localStorage.setItem('activeSkin', id);
+            }
+            location.reload();
+        };
     </script>
 </body>
 </html>
