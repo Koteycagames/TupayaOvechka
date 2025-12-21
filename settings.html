@@ -7,17 +7,26 @@
 </head>
 <body>
     <h1>НАСТРОЙКИ</h1>
-    <button class="menu-btn" onclick="toggleSound()" id="sbtn">Звук: ВКЛ</button>
-    <button class="menu-btn" onclick="localStorage.clear(); location.reload();">СБРОСИТЬ ВСЁ</button>
-    <button class="menu-btn" onclick="location.href='main.html'">НАЗАД</button>
+    
+    <div style="margin: 20px; font-size: 20px; font-family: sans-serif;">
+        <label>Звуки:</label>
+        <input type="checkbox" id="sound-check" style="width:25px; height:25px;">
+    </div>
+
+    <button class="menu-btn" onclick="saveSettings()">СОХРАНИТЬ И НАЗАД</button>
 
     <script>
-        function toggleSound() {
-            let s = localStorage.getItem('dinoSound') !== 'false';
-            localStorage.setItem('dinoSound', !s);
-            document.getElementById('sbtn').innerText = "Звук: " + (!s ? "ВКЛ" : "ВЫКЛ");
+        const check = document.getElementById('sound-check');
+        
+        // Загружаем текущее состояние
+        check.checked = localStorage.getItem('dinoSound') !== 'false';
+
+        function saveSettings() {
+            // Сохраняем
+            localStorage.setItem('dinoSound', check.checked);
+            // Уходим на индекс
+            location.href = 'index.html'; 
         }
-        document.getElementById('sbtn').innerText = "Звук: " + (localStorage.getItem('dinoSound') !== 'false' ? "ВКЛ" : "ВЫКЛ");
     </script>
 </body>
 </html>
